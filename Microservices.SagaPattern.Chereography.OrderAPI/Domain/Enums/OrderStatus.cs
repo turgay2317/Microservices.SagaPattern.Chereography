@@ -2,8 +2,8 @@
 {
     public enum OrderStatus
     {
+        Failed,
         Pending,
-        Processing,
         Completed
     }
 }

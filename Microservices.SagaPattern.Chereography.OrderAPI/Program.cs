@@ -1,7 +1,9 @@
 using MassTransit;
+using Microservices.SagaPattern.Chereography.OrderAPI.Consumers;
 using Microservices.SagaPattern.Chereography.OrderAPI.Domain.Entities;
 using Microservices.SagaPattern.Chereography.OrderAPI.Dtos;
 using Microservices.SagaPattern.Chereography.OrderAPI.Persistence;
+using Microservices.SagaPattern.Chereography.Shared;
 using Microservices.SagaPattern.Chereography.Shared.Events;
 using Microservices.SagaPattern.Chereography.Shared.Messages;
 using Microsoft.EntityFrameworkCore;
@@ -14,9 +16,21 @@ builder.Services.AddSwaggerGen();
 // Masstransit
 builder.Services.AddMassTransit(configurator =>
 {
+    configurator.AddConsumer<PaymentCompletedEventConsumer>();
+    configurator.AddConsumer<PaymentFailedEventConsumer>();
+    configurator.AddConsumer<InventoryNotReservedEventConsumer>();
     configurator.UsingRabbitMq((context, _configurator) =>
     {
         _configurator.Host(builder.Configuration["RabbitMQ"]);
+        _configurator.ReceiveEndpoint(RabbitMQSettings.Order_PaymentCompletedEventQueue, e =>
+            e.ConfigureConsumer<PaymentCompletedEventConsumer>(context)
+        );
+        _configurator.ReceiveEndpoint(RabbitMQSettings.Order_PaymentFailedEventQueue, e =>
+            e.ConfigureConsumer<PaymentFailedEventConsumer>(context)
+        );
+        _configurator.ReceiveEndpoint(RabbitMQSettings.Order_InventoryNotReservedEventQueue, e =>
+            e.ConfigureConsumer<InventoryNotReservedEventConsumer>(context)
+        );
     });
 });
 
@@ -63,6 +77,7 @@ app.MapPost("/create-order", async (CreateOrderDto request, OrderDbContext conte
     };
 
     await publisher.Publish(e);
+    Console.WriteLine("Order is created: OrderCreatedEvent");
 });
 
 app.Run();

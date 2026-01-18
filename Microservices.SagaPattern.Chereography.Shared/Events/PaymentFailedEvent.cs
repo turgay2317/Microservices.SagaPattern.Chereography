@@ -2,11 +2,12 @@
 
 namespace Microservices.SagaPattern.Chereography.Shared.Events
 {
-    public class InventoryReservedEvent
+    public class PaymentFailedEvent
     {
         public long OrderId { get; set; }
         public long CustomerId { get; set; }
+        public int PaymentMethod { get; set; }
         public List<OrderItemMessage> Items { get; set; } = new();
-        public decimal Total { get; set; }
+        public string Message { get; set; } = string.Empty;
     }
 }

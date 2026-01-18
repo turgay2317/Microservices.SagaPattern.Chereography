@@ -60,21 +60,24 @@ namespace Microservices.SagaPattern.Chereography.InventoryAPI.Consumers
             };
 
             await publisher.Publish(@event);
+            Console.WriteLine("Order is created but inventory is not reserved: InventoryNotReservedEvent");
         }
 
         private async Task SendInventoryReservedEvent(OrderCreatedEvent e)
         {
-            Uri url = new Uri($"queue: {RabbitMQSettings.Payment_InventoryReservedEvent}");
+            Uri url = new Uri($"queue:{RabbitMQSettings.Payment_InventoryReservedEventQueue}");
             var endpoint = await provider.GetSendEndpoint(url);
 
             InventoryReservedEvent @event = new()
             {
                 CustomerId = e.CustomerId,
                 OrderId = e.OrderId,
+                Items = e.Items,
                 Total = e.TotalPrice
             };
 
             await endpoint.Send(@event);
+            Console.WriteLine("Order is created and inventory is reserved: InventoryReservedEvent");
         }
     }
 }
