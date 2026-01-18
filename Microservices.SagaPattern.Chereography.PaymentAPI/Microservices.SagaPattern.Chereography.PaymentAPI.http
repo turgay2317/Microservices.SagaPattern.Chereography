@@ -1,0 +1,6 @@
+@Microservices.SagaPattern.Chereography.PaymentAPI_HostAddress = http://localhost:5149
+
+GET {{Microservices.SagaPattern.Chereography.PaymentAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
